@@ -1,45 +1,45 @@
-from typing import Any, Dict, List, Optional
-from typing_extensions import Literal, TypeAlias, TypedDict
+import typing as t
+import typing_extensions as te
 
-ID: TypeAlias = str
-Operator = Literal["by_facet", "by_neighbors"]
-Dimension = Literal["i", "r", "z"]
-TargetSet = Literal["Scattered"]
+ID: te.TypeAlias = str
+Operator = te.Literal["by_facet", "by_neighbors"]
+Dimension = te.Literal["i", "r", "z"]
+TargetSet = te.Literal["Scattered"]
 
 
-class Predicate(TypedDict):
+class Predicate(te.TypedDict):
     dimension: Dimension
     value: str
 
 
-class InputSet(TypedDict):
+class InputSet(te.TypedDict):
     length: int
     id: int
-    predicate: List[Predicate]
-    silhouette: Optional[Any]
-    novelty: Optional[Any]
+    predicate: t.List[Predicate]
+    silhouette: t.Optional[t.Any]
+    novelty: t.Optional[t.Any]
 
 
-class RequestData(TypedDict):
+class RequestData(te.TypedDict):
     get_scores: bool
     get_predicted_scores: bool
-    seen_predicates: List[str]
+    seen_predicates: t.List[str]
     input_set_id: int
-    dimensions: List[str]
+    dimensions: t.List[str]
     target_set: str
     curiosity_weight: float
-    target_items: List[ID]
-    found_items_with_ratio: Dict[ID, float]
-    previous_set_states: List[List[float]]
-    previous_operation_states: List[List[float]]
+    target_items: t.List[ID]
+    found_items_with_ratio: t.Dict[ID, float]
+    previous_set_states: t.List[t.List[float]]
+    previous_operation_states: t.List[t.List[float]]
 
 
-class PipelineParent(TypedDict):
-    selectedSetId: Optional[str]
+class PipelineParent(te.TypedDict):
+    selectedSetId: t.Optional[str]
     operator: str
     checkedDimension: str
     url: str
-    inputSet: Optional[InputSet]
+    inputSet: t.Optional[InputSet]
     reward: float
     curiosityReward: float
 
