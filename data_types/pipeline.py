@@ -46,3 +46,7 @@ class PipelineParent(te.TypedDict):
 
 class PipelineChild(PipelineParent):
     requestData: RequestData
+
+
+class AnnotatedPipelineChild(PipelineChild):
+    annotation: str
