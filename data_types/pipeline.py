@@ -1,4 +1,5 @@
-from typing import Any, Literal, Optional, TypeAlias, TypedDict
+from typing import Any, Dict, List, Optional
+from typing_extensions import Literal, TypeAlias, TypedDict
 
 ID: TypeAlias = str
 Operator = Literal["by_facet", "by_neighbors"]
@@ -14,7 +15,7 @@ class Predicate(TypedDict):
 class InputSet(TypedDict):
     length: int
     id: int
-    predicate: list[Predicate]
+    predicate: List[Predicate]
     silhouette: Optional[Any]
     novelty: Optional[Any]
 
@@ -22,15 +23,15 @@ class InputSet(TypedDict):
 class RequestData(TypedDict):
     get_scores: bool
     get_predicted_scores: bool
-    seen_predicates: list[str]
+    seen_predicates: List[str]
     input_set_id: int
-    dimensions: list[str]
+    dimensions: List[str]
     target_set: str
     curiosity_weight: float
-    target_items: list[ID]
-    found_items_with_ratio: dict[ID, float]
-    previous_set_states: list[list[float]]
-    previous_operation_states: list[list[float]]
+    target_items: List[ID]
+    found_items_with_ratio: Dict[ID, float]
+    previous_set_states: List[List[float]]
+    previous_operation_states: List[List[float]]
 
 
 class PipelineParent(TypedDict):
