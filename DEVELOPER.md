@@ -1,4 +1,4 @@
-# foobar
+# xeda
 
 ### Prerequisite
 
@@ -10,13 +10,13 @@
 1. Install python virtual environment:
 
 ```shell
-pyenv virtualenv 3.11.3 foobar_3.11.3
+pyenv virtualenv 3.11.3 xeda_3.11.3
 ```
 
 2. Activate python virtual env
 
 ```shell
-pyenv activate foobar_3.11.3
+pyenv activate xeda_3.11.3
 ```
 
 3. Install python dependencies from requirements.txt:

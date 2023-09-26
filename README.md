@@ -1,6 +1,6 @@
-# foobar
+# xeda
 
-foobar is a Python project for dealing with ...
+xeda is a research work dealing with explanation of data explanation Reinforcement Learning algorithm. 
 
 ## Installation & Contributing
 
