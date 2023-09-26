@@ -2,7 +2,7 @@
 
 ### Prerequisite
 
-- Python: 3.11.3
+- Python: 3.7.16
 - Jupyter Notebook: 6.4.12
 
 ### Environment
@@ -10,13 +10,13 @@
 1. Install python virtual environment:
 
 ```shell
-pyenv virtualenv 3.11.3 xeda_3.11.3
+pyenv virtualenv 3.7.16 xeda_3.7.16
 ```
 
 2. Activate python virtual env
 
 ```shell
-pyenv activate xeda_3.11.3
+pyenv activate xeda_3.7.16
 ```
 
 3. Install python dependencies from requirements.txt:

@@ -1,4 +1,4 @@
-from typing import Any, Literal, Optional, TypeAlias, TypedDict 
+from typing import Any, Literal, Optional, TypeAlias, TypedDict
 
 ID: TypeAlias = str
 Operator = Literal["by_facet", "by_neighbors"]

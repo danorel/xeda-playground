@@ -8,8 +8,9 @@ Use the [DEVELOPER.md](./DEVELOPER.md) guide to run or contribute to the project
 
 ## Usage
 
+1. Run sibling sampling algorithm:
 ```python
-python -m main.py
+python -m pipeline_sampling.sibling_sampling 
 ```
 
 ## License
