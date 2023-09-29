@@ -1,6 +1,8 @@
 import typing as t
 import typing_extensions as te
 
+from data_types.annotation import PipelineAnnotation
+
 ID: te.TypeAlias = str
 Operator = te.Literal["by_facet", "by_neighbors"]
 Dimension = te.Literal["i", "r", "z"]
@@ -34,7 +36,7 @@ class RequestData(te.TypedDict):
     previous_operation_states: t.List[t.List[float]]
 
 
-class PipelineParent(te.TypedDict):
+class PipelineHead(te.TypedDict):
     selectedSetId: t.Optional[str]
     operator: str
     checkedDimension: str
@@ -44,9 +46,12 @@ class PipelineParent(te.TypedDict):
     curiosityReward: float
 
 
-class PipelineChild(PipelineParent):
+class PipelineBodyItem(PipelineHead):
     requestData: RequestData
 
 
-class AnnotatedPipelineChild(PipelineChild):
-    annotation: str
+class AnnotatedPipelineBodyItem(PipelineBodyItem):
+    annotation: PipelineAnnotation
+
+
+Pipeline = t.List[PipelineHead]

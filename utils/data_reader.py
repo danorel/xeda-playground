@@ -5,11 +5,13 @@ import typing as t
 
 from tqdm import tqdm
 
-from data_types.pipeline import PipelineChild, PipelineParent
+from data_types.pipeline import PipelineBodyItem, PipelineHead
 from utils.debugging import logger
 
 
-def read_pipelines() -> t.Iterator[t.Tuple[PipelineChild, PipelineParent]]:
+def read_pipelines() -> t.Iterator[
+    t.Tuple[str, PipelineHead, t.List[PipelineBodyItem]]
+]:
     root = pathlib.Path.cwd()
     data = root / "data" / "pipelines"
     logger.info("Starting reading pipelines...")
@@ -17,10 +19,10 @@ def read_pipelines() -> t.Iterator[t.Tuple[PipelineChild, PipelineParent]]:
         pipeline_file = pathlib.Path(pipeline_path)
         uuid, pipeline = (
             pipeline_file.name.split("_")[1],
-            json.loads(pipeline_file.read_text())
+            json.loads(pipeline_file.read_text()),
         )
-        parent, *children = pipeline
-        yield uuid, parent, children
+        pipeline_head, *pipeline_body = pipeline
+        yield uuid, pipeline_head, pipeline_body
     logger.info("Finished reading pipelines...")
 
 

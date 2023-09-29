@@ -10,7 +10,7 @@ Use the [DEVELOPER.md](./DEVELOPER.md) guide to run or contribute to the project
 
 1. Run sibling sampling algorithm:
 ```python
-python -m pipeline_sampling.sibling_sampling 
+python -m pipeline.sampling.sibling_sampling 
 ```
 
 ## License
