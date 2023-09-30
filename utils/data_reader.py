@@ -33,10 +33,19 @@ def read_target_set(target_set_name: str) -> t.Set[str]:
     return set(json.loads(target_set_file.read_text()))
 
 
-def read_index() -> pd.DataFrame:
+def read_definitions() -> pd.DataFrame:
     root = pathlib.Path.cwd()
     index = root / "data" / "index.csv"
-    logger.info("Starting reading index...")
+    logger.info("Starting reading definitions.csv...")
     index_df = pd.read_csv(index)
-    logger.info("Finished reading index...")
+    logger.info("Finished reading definitions.csv...")
+    return index_df
+
+
+def read_members() -> pd.DataFrame:
+    root = pathlib.Path.cwd()
+    index = root / "data" / "members.csv"
+    logger.info("Starting reading members.csv...")
+    index_df = pd.read_csv(index)
+    logger.info("Finished reading members.csv...")
     return index_df

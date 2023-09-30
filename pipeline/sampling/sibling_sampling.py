@@ -1,46 +1,40 @@
-import copy
 import os
+import pandas as pd
+import typing as t
 
-from utils.data_reader import read_index, read_target_set, read_pipelines
-from utils.data_writer import write_pipeline
+from data_types.pipeline import PipelineBodyItem
+from utils.data_reader import read_definitions, read_pipelines
+from utils.data_writer import write_target_set
 from utils.debugging import logger
-from pipeline.annotation import (
-    annotate_pipeline_body,
-    annotate_pipeline_body_item,
-)
 
 SIBLING_SAMPLING_RATE = float(os.environ.get("SIBLING_SAMPLING_RATE", "0.5"))
 
+
+def find_item_set(
+    definitions: pd.DataFrame, pipeline_body_item: PipelineBodyItem
+) -> t.Set[str]:
+    input_set_id = pipeline_body_item["inputSet"]["id"]
+    definition = definitions.loc[definitions["id"]
+                                 == input_set_id]["definition"].iloc[0]
+    return set(definition[1:-1].split(", "))
+
+
+def sibling_sampling(definitions: pd.DataFrame, pipeline_body: t.List[PipelineBodyItem]):
+    leaf_pipeline_body_item = pipeline_body[-1]
+    leaf_pipleine_item_set = find_item_set(
+        definitions, leaf_pipeline_body_item)
+    minimum, maximum = 0., 0.
+    return set([])
+
+
 if __name__ == "__main__":
-    target_set_name = "grean-peas"
-    index, target_set = (read_index(), read_target_set(target_set_name))
-    logger.info(
-        "Annotating pipelines with target set '{0}' having {1} elements".format(
-            target_set_name, len(target_set)
-        )
-    )
+    definitions = read_definitions()
+    logger.info("Sibling sampling of pipelines started...")
     for uuid, pipeline_head, pipeline_body in read_pipelines():
-        pipeline_body_annotation = annotate_pipeline_body(pipeline_body)
-        annotated_pipeline_body = []
-        for item in range(len(pipeline_body) - 1, 0, -1):
-            current_pipeline_body_item, parent_pipeline_body_item = (
-                pipeline_body[item],
-                pipeline_body[item - 1],
-            )
-            pipeline_body_item_annotation = annotate_pipeline_body_item(
-                current_pipeline_body_item, parent_pipeline_body_item, index, target_set
-            )
-            annotated_pipeline_body_item = copy.deepcopy(
-                current_pipeline_body_item)
-            annotated_pipeline_body_item["annotation"] = {
-                **pipeline_body_annotation,
-                **pipeline_body_item_annotation,
-            }
-            annotated_pipeline_body.insert(0, annotated_pipeline_body_item)
-        annotated_pipeline = [pipeline_head] + annotated_pipeline_body
-        write_pipeline(
+        target_set = sibling_sampling(index, pipeline_body)
+        write_target_set(
             uuid,
-            pipeline=annotated_pipeline,
+            target_set=target_set,
             sampling_method="sibling_sampling",
         )
-    logger.info("Annotation is done and saved!")
+    logger.info("Sibling sampling is done and saved!")

@@ -8,9 +8,16 @@ Use the [DEVELOPER.md](./DEVELOPER.md) guide to run or contribute to the project
 
 ## Usage
 
-1. Run sibling sampling algorithm:
-```python
-python -m pipeline.sampling.sibling_sampling 
+1. Sibling algorithms
+
+a. Run sibling sampling algorithm:
+```shell
+python -m pipeline.sampling.sibling_sampling
+```
+
+b. Run sibling annotation algorithm:
+```shell
+python -m pipeline.annotation.sibling_annotation
 ```
 
 ## License
