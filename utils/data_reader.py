@@ -35,7 +35,7 @@ def read_target_set(target_set_name: str) -> t.Set[str]:
 
 def read_definitions() -> pd.DataFrame:
     root = pathlib.Path.cwd()
-    index = root / "data" / "index.csv"
+    index = root / "data" / "definitions.csv"
     logger.info("Starting reading definitions.csv...")
     index_df = pd.read_csv(index)
     logger.info("Finished reading definitions.csv...")

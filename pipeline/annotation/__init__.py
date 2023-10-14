@@ -7,11 +7,12 @@ from data_types.pipeline import AnnotatedPipelineBodyItem, PipelineBodyItem
 
 
 def find_item_set(
-    index: pd.DataFrame, pipeline_body_item: PipelineBodyItem
+    members: pd.DataFrame, pipeline_body_item: PipelineBodyItem
 ) -> t.Set[str]:
     input_set_id = pipeline_body_item["inputSet"]["id"]
-    definition = index.loc[index["id"] == input_set_id]["definition"].iloc[0]
-    return set(definition[1:-1].split(", "))
+    members = members.loc[members["id"] == input_set_id]["members"].iloc[0]
+    input_set = set(members[1:-1].split(", "))
+    return input_set
 
 
 # TODO: Double-check whether curiosity is stored in 'curiosity_weight' feature
@@ -54,11 +55,11 @@ def annotate_pipeline_body(pipeline_body: t.List[PipelineBodyItem]) -> dict:
 def annotate_pipeline_body_item(
     current_pipeline_body_item: PipelineBodyItem,
     parent_pipeline_body_item: PipelineBodyItem,
-    index: pd.DataFrame,
+    members: pd.DataFrame,
     target_set: t.Set[str],
 ) -> AnnotatedPipelineBodyItem:
     current_pipeline_body_item_set = find_item_set(
-        index, current_pipeline_body_item)
+        members, current_pipeline_body_item)
     return PipelineBodyItemAnnotation(
         target_set_rate=len(
             current_pipeline_body_item_set.intersection(target_set))

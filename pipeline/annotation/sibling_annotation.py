@@ -1,6 +1,6 @@
 import copy
 
-from utils.data_reader import read_index, read_target_set, read_pipelines
+from utils.data_reader import read_members, read_target_set, read_pipelines
 from utils.data_writer import write_pipeline
 from utils.debugging import logger
 from pipeline.annotation import (
@@ -10,7 +10,7 @@ from pipeline.annotation import (
 
 if __name__ == "__main__":
     target_set_name = "grean-peas"
-    index, target_set = (read_index(), read_target_set(target_set_name))
+    members, target_set = (read_members(), read_target_set(target_set_name))
     logger.info(
         "Annotating pipelines with target set '{0}' having {1} elements".format(
             target_set_name, len(target_set)
@@ -25,7 +25,7 @@ if __name__ == "__main__":
                 pipeline_body[item - 1],
             )
             pipeline_body_item_annotation = annotate_pipeline_body_item(
-                current_pipeline_body_item, parent_pipeline_body_item, index, target_set
+                current_pipeline_body_item, parent_pipeline_body_item, members, target_set
             )
             annotated_pipeline_body_item = copy.deepcopy(
                 current_pipeline_body_item)
