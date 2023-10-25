@@ -21,7 +21,7 @@ def write_pipeline(
 
 
 def write_target_set(
-    uuid: str,
+    filename: str,
     target_set: t.Set[str],
     sampling_method: SamplingMethod,
 ):
@@ -29,6 +29,7 @@ def write_target_set(
     sampling_target_set_dir = root / "data" / "target_sets" / sampling_method
     sampling_target_set_dir.mkdir(parents=True, exist_ok=True)
     sampling_target_set = json.dumps(list(target_set))
-    sampling_target_set_path = sampling_target_set_dir / f"target_set_{uuid}"
+    sampling_target_set_path = sampling_target_set_dir / \
+        f"target_set_{filename}"
     sampling_target_set_file = pathlib.Path(sampling_target_set_path)
     sampling_target_set_file.write_text(sampling_target_set)
