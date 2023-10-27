@@ -17,12 +17,12 @@ def read_pipelines() -> t.Iterator[
     logger.info("Starting reading pipelines...")
     for pipeline_path in tqdm(pipeline_dir.rglob("*.json")):
         pipeline_file = pathlib.Path(pipeline_path)
-        uuid, pipeline = (
+        filename, pipeline = (
             pipeline_file.name.split("_")[1],
             json.loads(pipeline_file.read_text()),
         )
         pipeline_head, *pipeline_body = pipeline
-        yield uuid, pipeline_head, pipeline_body
+        yield filename, pipeline_head, pipeline_body
     logger.info("Finished reading pipelines...")
 
 
