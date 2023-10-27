@@ -1,6 +1,6 @@
 import copy
 
-from utils.data_reader import read_members, read_target_set, read_pipelines
+from utils.data_reader import read_members, read_target_sets, read_pipelines
 from utils.data_writer import write_pipeline
 from utils.debugging import logger
 from pipeline.annotation import (
@@ -9,11 +9,11 @@ from pipeline.annotation import (
 )
 
 if __name__ == "__main__":
-    target_set_name = "grean-peas"
-    members, target_set = (read_members(), read_target_set(target_set_name))
+    target_set_dir = "node_sampling"
+    members, target_set = (read_members(), read_target_sets(target_set_dir))
     logger.info(
-        "Annotating pipelines with target set '{0}' having {1} elements".format(
-            target_set_name, len(target_set)
+        "Annotating pipelines in the target set directory '{0}' having {1} elements".format(
+            target_set_dir, len(target_set)
         )
     )
     for uuid, pipeline_head, pipeline_body in read_pipelines():

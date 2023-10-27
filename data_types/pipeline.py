@@ -55,3 +55,4 @@ class AnnotatedPipelineBodyItem(PipelineBodyItem):
 
 
 Pipeline = t.List[PipelineHead]
+PipelineType = te.Literal["dora", "eda4sum"]

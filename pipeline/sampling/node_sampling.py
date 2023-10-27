@@ -16,8 +16,11 @@ def find_item_set(
     members: pd.DataFrame, pipeline_body_item: PipelineBodyItem
 ) -> t.Set[str]:
     input_set_id = pipeline_body_item["inputSet"]["id"]
-    members = members.loc[members["id"] == input_set_id]["members"].iloc[0]
-    item_set = set(members[1:-1].split(", "))
+    members = members.loc[members["id"] == input_set_id]["members"]
+    if members.empty:
+        return set([])
+    item_set = set([int(member)
+                    for member in members.iloc[0][1:-1].split(", ")])
     return item_set
 
 
