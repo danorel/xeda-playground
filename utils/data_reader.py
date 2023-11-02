@@ -13,7 +13,7 @@ def read_pipelines(pipeline_type: PipelineType, pipeline_kind: PipelineKind = "r
     t.Tuple[str, Pipeline]
 ]:
     root = pathlib.Path.cwd()
-    pipeline_dir = root / "data" / "pipelines" / pipeline_type / pipeline_kind
+    pipeline_dir = root / "datasets" / "pipelines" / pipeline_type / pipeline_kind
     logger.info("Starting reading pipelines...")
     for pipeline_path in tqdm(pipeline_dir.rglob("*.json")):
         pipeline_file = pathlib.Path(pipeline_path)
@@ -27,7 +27,7 @@ def read_pipelines(pipeline_type: PipelineType, pipeline_kind: PipelineKind = "r
 
 def read_target_sets(target_set_name: str) -> t.Iterator[t.Set[str]]:
     root = pathlib.Path.cwd()
-    target_set_dir = root / "data" / "target_sets" / target_set_name
+    target_set_dir = root / "datasets" / "target_sets" / target_set_name
     logger.info("Starting reading target sets...")
     for target_set_path in tqdm(target_set_dir.rglob("*.json")):
         target_set_file = pathlib.Path(target_set_path)
@@ -37,7 +37,7 @@ def read_target_sets(target_set_name: str) -> t.Iterator[t.Set[str]]:
 
 def read_definitions() -> pd.DataFrame:
     root = pathlib.Path.cwd()
-    definitions_path = root / "data" / "definitions.csv"
+    definitions_path = root / "datasets" / "definitions.csv"
     logger.info("Starting reading definitions.csv...")
     definitions_df = pd.read_csv(definitions_path)
     logger.info("Finished reading definitions.csv...")
@@ -46,7 +46,7 @@ def read_definitions() -> pd.DataFrame:
 
 def read_members() -> pd.DataFrame:
     root = pathlib.Path.cwd()
-    index = root / "data" / "members.csv"
+    index = root / "datasets" / "members.csv"
     logger.info("Starting reading members.csv...")
     index_df = pd.read_csv(index)
     logger.info("Finished reading members.csv...")

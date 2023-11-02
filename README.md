@@ -12,12 +12,12 @@ Use the [DEVELOPER.md](./DEVELOPER.md) guide to run or contribute to the project
 
 a. Run sibling sampling algorithm:
 ```shell
-python -m pipeline.sampling.sibling_sampling
+python -m pipeline.sampling.node_sampling
 ```
 
 b. Run sibling annotation algorithm:
 ```shell
-python -m pipeline.annotation.sibling_annotation
+python -m pipeline.annotation.eda4sum_annotation
 ```
 
 ## License

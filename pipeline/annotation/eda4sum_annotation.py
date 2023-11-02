@@ -8,7 +8,7 @@ from pipeline.annotation import (
 if __name__ == "__main__":
     logger.info("Into node_annotation")
 
-    for uuid, pipeline in read_pipelines("eda4sum", "raw"):
+    for uuid, pipeline in read_pipelines("eda4sum", "annotated"):
         annotated_pipeline = annotate_pipeline(pipeline)
         write_pipeline(uuid, annotated_pipeline, "eda4sum", "annotated")
 
