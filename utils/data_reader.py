@@ -5,15 +5,15 @@ import typing as t
 
 from tqdm import tqdm
 
-from data_types.pipeline import PipelineBodyItem, PipelineHead
+from data_types.pipeline import Pipeline, PipelineType, PipelineKind
 from utils.debugging import logger
 
 
-def read_pipelines() -> t.Iterator[
-    t.Tuple[str, PipelineHead, t.List[PipelineBodyItem]]
+def read_pipelines(pipeline_type: PipelineType, pipeline_kind: PipelineKind = "raw") -> t.Iterator[
+    t.Tuple[str, Pipeline]
 ]:
     root = pathlib.Path.cwd()
-    pipeline_dir = root / "data" / "pipelines"
+    pipeline_dir = root / "data" / "pipelines" / pipeline_type / pipeline_kind
     logger.info("Starting reading pipelines...")
     for pipeline_path in tqdm(pipeline_dir.rglob("*.json")):
         pipeline_file = pathlib.Path(pipeline_path)
@@ -21,8 +21,7 @@ def read_pipelines() -> t.Iterator[
             pipeline_file.name.split("_")[1],
             json.loads(pipeline_file.read_text()),
         )
-        pipeline_head, *pipeline_body = pipeline
-        yield filename, pipeline_head, pipeline_body
+        yield filename, pipeline
     logger.info("Finished reading pipelines...")
 
 

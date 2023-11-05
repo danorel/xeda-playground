@@ -9,14 +9,9 @@ from pipeline.annotation import (
 )
 
 if __name__ == "__main__":
-    target_set_dir = "node_sampling"
-    members, target_set = (read_members(), read_target_sets(target_set_dir))
-    logger.info(
-        "Annotating pipelines in the target set directory '{0}' having {1} elements".format(
-            target_set_dir, len(target_set)
-        )
-    )
-    for uuid, pipeline_head, pipeline_body in read_pipelines():
+    members = read_members()
+    for filename, pipeline in read_pipelines("dora", "raw"):
+        pipeline_head, *pipeline_body = pipeline
         pipeline_body_annotation = annotate_pipeline_body(pipeline_body)
         annotated_pipeline_body = []
         for item in range(len(pipeline_body) - 1, 0, -1):
@@ -25,7 +20,7 @@ if __name__ == "__main__":
                 pipeline_body[item - 1],
             )
             pipeline_body_item_annotation = annotate_pipeline_body_item(
-                current_pipeline_body_item, parent_pipeline_body_item, members, target_set
+                current_pipeline_body_item, parent_pipeline_body_item, members
             )
             annotated_pipeline_body_item = copy.deepcopy(
                 current_pipeline_body_item)
@@ -35,9 +30,5 @@ if __name__ == "__main__":
             }
             annotated_pipeline_body.insert(0, annotated_pipeline_body_item)
         annotated_pipeline = [pipeline_head] + annotated_pipeline_body
-        write_pipeline(
-            uuid,
-            pipeline=annotated_pipeline,
-            sampling_method="sibling_sampling",
-        )
+        write_pipeline(filename, annotated_pipeline, "dora", "annotated")
     logger.info("Annotation is done and saved!")

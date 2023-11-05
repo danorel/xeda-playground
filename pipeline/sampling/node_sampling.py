@@ -1,70 +1,131 @@
 import pandas as pd
 import typing as t
-import os
 import random
 import uuid
 
-from data_types.pipeline import PipelineBodyItem
+from data_types.pipeline import Pipeline
 from utils.data_reader import read_members, read_pipelines
 from utils.data_writer import write_target_set
 from utils.debugging import logger
 
 
-NODE_SAMPLING_RATE = float(os.environ.get("NODE_SAMPLING_RATE", "0.5"))
-SAMPLE_AMOUNT = int(os.environ.get("SAMPLE_AMOUNT", "100"))
-SAMPLE_BY = os.environ.get("SAMPLE_BY", "csv")
+def make_item_set_sampler(sampling_rate: float):
+
+    def sample(item_set: set):
+        k = round(len(item_set) * sampling_rate)
+        return random.choices(list(item_set), k=k)
+
+    return sample
 
 
-def node_sampling_pipeline(members: pd.DataFrame, pipeline_body: t.List[PipelineBodyItem]) -> t.Set[str]:
+def make_item_set_validator(min_item_set_nodes: int, max_item_set_nodes: int):
+
+    def satisfies_conditions(item_set: set):
+        return len(item_set) >= min_item_set_nodes and len(item_set) <= max_item_set_nodes
+
+    return satisfies_conditions
+
+
+def node_sampling_pipeline(
+    members: pd.DataFrame,
+    pipeline: Pipeline,
+    sample,
+    satisfies_conditions
+) -> t.Set[str]:
     logger.info("Sampling by pipelines...")
 
-    leaf = random.randint(0, len(pipeline_body) - 1)
-    pipeline_body_item = pipeline_body[leaf]
+    leaf = random.randint(0, len(pipeline) - 1)
+    pipeline_leaf = pipeline[leaf]
 
-    input_set_id = pipeline_body_item["inputSet"]["id"]
+    input_set_id = pipeline_leaf["inputSet"]["id"]
     members = members.loc[members["id"] == input_set_id]["members"]
+
     if members.empty:
-        return set([])
-    item_set = set([int(member)
-                    for member in members.iloc[0][1:-1].split(", ")])
+        logger.warn(f"Node[id={input_set_id}] is missing in .csv")
+        return None
 
-    sampled_item_set = random.choices(list(item_set), k=(
-        round(len(item_set) * NODE_SAMPLING_RATE)))
-    return sampled_item_set
+    item_set = set([int(id) for id in members.iloc[0][1:-1].split(", ")])
+
+    if not satisfies_conditions(item_set):
+        logger.warn(f"Node[id={input_set_id}] not satisfies conditions")
+        return None
+
+    return sample(item_set)
 
 
-def node_sampling_csv(members: pd.DataFrame) -> t.Set[str]:
+def node_sampling_csv(
+    members: pd.DataFrame,
+    sample,
+    satisfies_conditions,
+    attempts: int = 1000
+) -> t.Set[str]:
     logger.info("Sampling by csv...")
 
-    input_set_id = random.randint(0, members.shape[0] - 1)
-    item_set = set([int(member)
-                    for member in members.iloc[input_set_id, 2][1:-1].split(", ")])
+    item_set = set()
+    for attempt in range(attempts):
+        input_set_id = random.randint(0, members.shape[0] - 1)
+        item_set = set(
+            [int(id) for id in members.iloc[input_set_id, 2][1:-1].split(", ")])
+        if satisfies_conditions(item_set):
+            logger.info(
+                f"Node[id={input_set_id}] satisfies the conditions (size = {len(item_set)})")
+            break
+        else:
+            logger.info(
+                f"Node[id={input_set_id}] violates the conditions (size = {len(item_set)}). Attempt #{attempt}...")
 
-    sampled_item_set = random.choices(list(item_set), k=(
-        round(len(item_set) * NODE_SAMPLING_RATE)))
-    return sampled_item_set
+    if not len(item_set):
+        logger.warn(
+            f"Not found node satisfying conditions ({attempts} attemts done)")
+        return None
+
+    return sample(item_set)
 
 
-if __name__ == "__main__":
+def node_sampling(
+    sample_amount: int,
+    sampling_rate: float,
+    min_item_set_nodes: int,
+    max_item_set_nodes: int,
+    sample_by: t.Literal['pipeline', 'csv'] = 'csv'
+):
     logger.info("Node sampling started...")
 
     members = read_members()
 
-    if SAMPLE_BY == 'pipeline':
-        for filename, pipeline_head, pipeline_body in read_pipelines():
-            target_set = node_sampling_pipeline(members, pipeline_body)
-            write_target_set(
-                filename,
-                target_set=target_set,
-                sampling_method="node_sampling",
+    sample, satisfies_conditions = (
+        make_item_set_sampler(sampling_rate),
+        make_item_set_validator(min_item_set_nodes, max_item_set_nodes)
+    )
+
+    if sample_by == 'pipeline':
+        for filename, pipeline in read_pipelines("eda4sum", "raw"):
+            target_set = node_sampling_pipeline(
+                members,
+                pipeline,
+                sample,
+                satisfies_conditions
             )
-    elif SAMPLE_BY == 'csv':
-        for _ in range(SAMPLE_AMOUNT):
-            target_set = node_sampling_csv(members)
-            write_target_set(
-                filename=f"{str(uuid.uuid4())}.json",
-                target_set=target_set,
-                sampling_method="node_sampling",
+            if target_set:
+                write_target_set(
+                    filename,
+                    target_set=target_set,
+                    sampling_method="node_sampling",
+                )
+    elif sample_by == 'csv':
+        for _ in range(sample_amount):
+            target_set = node_sampling_csv(
+                members,
+                sample,
+                satisfies_conditions
             )
+            if target_set:
+                write_target_set(
+                    filename=f"{str(uuid.uuid4())}.json",
+                    target_set=target_set,
+                    sampling_method="node_sampling",
+                )
+    else:
+        raise NotImplementedError()
 
     logger.info("Node sampling is done and saved!")

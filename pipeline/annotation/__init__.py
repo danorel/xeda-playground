@@ -1,13 +1,12 @@
 import pandas as pd
-import statistics
 import typing as t
 
-from data_types.annotation import PipelineBodyAnnotation, PipelineBodyItemAnnotation
-from data_types.pipeline import AnnotatedPipelineBodyItem, PipelineBodyItem
+from data_types.pipeline import PipelineEda4Sum, PipelineItemEda4Sum, AnnotatedPipelineEda4Sum, AnnotatedPipelineItemEda4Sum
+from data_types.annotation import Annotation
 
 
 def find_item_set(
-    members: pd.DataFrame, pipeline_body_item: PipelineBodyItem
+        members: pd.DataFrame, pipeline_body_item: PipelineItemEda4Sum
 ) -> t.Set[str]:
     input_set_id = pipeline_body_item["inputSet"]["id"]
     members = members.loc[members["id"] == input_set_id]["members"].iloc[0]
@@ -15,59 +14,55 @@ def find_item_set(
     return input_set
 
 
-# TODO: Double-check whether curiosity is stored in 'curiosity_weight' feature
-def _find_curiosity(pipeline_body_item: PipelineBodyItem) -> float:
-    return float(
-        pipeline_body_item.get("requestData", {}).get(
-            "curiosity_weight", "0.0")
-    )
+def _find_remaining_operators(pipeline: PipelineEda4Sum) -> dict:
+    operators = {}
+    for pipeline_item in pipeline:
+        current_operator = pipeline_item["operator"]
+        if current_operator in operators.keys():
+            operators[current_operator] += 1
+        else:
+            operators[current_operator] = 1
+
+    return operators
 
 
-# TODO: Find where familiarity is stored. Possibly, during policy training.
-def _find_familiarity(pipeline_body_item: PipelineBodyItem) -> float:
-    return 0.0
+def _find_delta_uniformity(pipeline_item_current: PipelineItemEda4Sum,
+                           pipeline_item_next: PipelineItemEda4Sum) -> float:
+    return pipeline_item_next["uniformity"] - pipeline_item_current["uniformity"]
 
 
-# TODO: Find where remaining operators are stored. Possibly, in pipeline JSON.
-def _find_remaining_operators(pipeline_body_item: PipelineBodyItem):
-    return []
+def _find_delta_novelty(pipeline_item_current: PipelineItemEda4Sum,
+                        pipeline_item_next: PipelineItemEda4Sum) -> float:
+    return pipeline_item_next["novelty"] - pipeline_item_current["novelty"]
 
 
-def annotate_pipeline_body(pipeline_body: t.List[PipelineBodyItem]) -> dict:
-    leaf_pipeline_body_item = pipeline_body[-1]
-    return PipelineBodyAnnotation(
-        final_curiosity=_find_curiosity(leaf_pipeline_body_item),
-        average_curiosity=statistics.mean(
-            [_find_curiosity(pipeline_body_item)
-             for pipeline_body_item in pipeline_body]
-        ),
-        final_familiarity=_find_familiarity(leaf_pipeline_body_item),
-        average_familiarity=statistics.mean(
-            [
-                _find_familiarity(pipeline_body_item)
-                for pipeline_body_item in pipeline_body
-            ]
-        ),
-        total_length_of_pipeline=len(pipeline_body) + 1,
-    )
+def _find_delta_diversity(pipeline_item_current: PipelineEda4Sum,
+                          pipeline_item_next: PipelineEda4Sum) -> float:
+    return pipeline_item_next["distance"] - pipeline_item_current["distance"]
 
 
-def annotate_pipeline_body_item(
-    current_pipeline_body_item: PipelineBodyItem,
-    parent_pipeline_body_item: PipelineBodyItem,
-    members: pd.DataFrame,
-    target_set: t.Set[str],
-) -> AnnotatedPipelineBodyItem:
-    current_pipeline_body_item_set = find_item_set(
-        members, current_pipeline_body_item)
-    return PipelineBodyItemAnnotation(
-        target_set_rate=len(
-            current_pipeline_body_item_set.intersection(target_set))
-        / len(target_set),
-        delta_curisity=_find_curiosity(current_pipeline_body_item)
-        - _find_curiosity(parent_pipeline_body_item),
-        delta_familiarity=_find_familiarity(current_pipeline_body_item)
-        - _find_familiarity(parent_pipeline_body_item),
-        remaining_operators=_find_remaining_operators(
-            current_pipeline_body_item),
-    )
+def annotate_pipeline(pipeline: PipelineEda4Sum) -> AnnotatedPipelineEda4Sum:
+    length = len(pipeline)
+    annotated_pipeline: AnnotatedPipelineEda4Sum = []
+
+    for item in range(length):
+        operators = _find_remaining_operators(pipeline[item:])
+        if item is not length - 1:
+            delta_uniformity = _find_delta_uniformity(
+                pipeline[item], pipeline[item + 1])
+            delta_novelty = _find_delta_novelty(
+                pipeline[item], pipeline[item + 1])
+            delta_diversity = _find_delta_diversity(
+                pipeline[item], pipeline[item + 1])
+        else:
+            delta_uniformity = 0
+            delta_novelty = 0
+            delta_diversity = 0
+        annotation = Annotation(total_length=length, remaining_operators=operators,
+                                delta_uniformity=delta_uniformity, delta_novelty=delta_novelty,
+                                delta_diversity=delta_diversity)
+        annotated_pipeline_item = AnnotatedPipelineItemEda4Sum(
+            **pipeline[item], annotation=annotation)
+        annotated_pipeline.append(annotated_pipeline_item)
+
+    return annotated_pipeline
