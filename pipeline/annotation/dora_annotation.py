@@ -1,6 +1,6 @@
 import copy
 
-from utils.data_reader import read_members, read_target_sets, read_pipelines
+from utils.data_reader import read_members, read_pipelines
 from utils.data_writer import write_pipeline
 from utils.debugging import logger
 from pipeline.annotation import (

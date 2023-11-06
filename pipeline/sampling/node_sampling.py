@@ -1,5 +1,6 @@
 import pandas as pd
 import typing as t
+import typing_extensions as te
 import random
 import uuid
 
@@ -87,7 +88,7 @@ def node_sampling(
     sampling_rate: float,
     min_item_set_nodes: int,
     max_item_set_nodes: int,
-    sample_by: t.Literal['pipeline', 'csv'] = 'csv'
+    sample_by: te.Literal['pipeline', 'csv'] = 'csv'
 ):
     logger.info("Node sampling started...")
 
@@ -129,3 +130,13 @@ def node_sampling(
         raise NotImplementedError()
 
     logger.info("Node sampling is done and saved!")
+
+
+if __name__ == "__main__":
+    members = node_sampling(
+        sample_amount=100,
+        sampling_rate=0.5,
+        min_item_set_nodes=100,
+        max_item_set_nodes=1000,
+        sample_by='csv'
+    )
